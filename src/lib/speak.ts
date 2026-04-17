@@ -1,35 +1,43 @@
-// Arabic text-to-speech using the Web Speech API (no backend required).
-let cachedVoice: SpeechSynthesisVoice | null = null;
+import { supabase } from "@/integrations/supabase/client";
 
-function pickArabicVoice(): SpeechSynthesisVoice | null {
-  if (cachedVoice) return cachedVoice;
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
-  const voices = window.speechSynthesis.getVoices();
-  const arabic = voices.find((v) => v.lang?.toLowerCase().startsWith("ar"));
-  cachedVoice = arabic ?? null;
-  return cachedVoice;
-}
+const cache = new Map<string, string>(); // text -> object URL
+let currentAudio: HTMLAudioElement | null = null;
 
-// Warm up voices (some browsers load them async)
-if (typeof window !== "undefined" && "speechSynthesis" in window) {
-  window.speechSynthesis.onvoiceschanged = () => {
-    cachedVoice = null;
-    pickArabicVoice();
-  };
-}
-
-export function speakArabic(text: string) {
-  if (!text) return;
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-    console.warn("Speech synthesis not supported");
-    return;
-  }
+function browserFallback(text: string) {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
   window.speechSynthesis.cancel();
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = "ar-SA";
-  utter.rate = 0.95;
-  utter.pitch = 1;
-  const voice = pickArabicVoice();
-  if (voice) utter.voice = voice;
-  window.speechSynthesis.speak(utter);
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "ar-SA";
+  window.speechSynthesis.speak(u);
+}
+
+export async function speakArabic(text: string) {
+  if (!text) return;
+  try {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio = null;
+    }
+
+    let url = cache.get(text);
+    if (!url) {
+      const { data, error } = await supabase.functions.invoke("tts", {
+        body: { text },
+      });
+      if (error) throw error;
+
+      // Edge function returns binary audio; supabase-js gives us a Blob
+      const blob =
+        data instanceof Blob ? data : new Blob([data as ArrayBuffer], { type: "audio/mpeg" });
+      url = URL.createObjectURL(blob);
+      cache.set(text, url);
+    }
+
+    const audio = new Audio(url);
+    currentAudio = audio;
+    await audio.play();
+  } catch (err) {
+    console.error("speakArabic failed, falling back to browser TTS:", err);
+    browserFallback(text);
+  }
 }
