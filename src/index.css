@@ -1,6 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+}
+.icon-fill { font-variation-settings: 'FILL' 1; }
+
+.resonant-sanctuary-gradient {
+  background: radial-gradient(circle at top right, hsl(var(--primary-fixed)) 0%, hsl(var(--background)) 100%);
+}
+.soft-elevation { box-shadow: 0 32px 64px -12px hsl(var(--on-surface) / 0.08); }
+.asymmetric-pulse { transform: scale(1); transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.asymmetric-pulse:active { transform: scale(0.95); }
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
@@ -8,8 +31,26 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 222 100% 98%;
+    --foreground: 220 13% 11%;
+    --surface: 222 100% 98%;
+    --surface-container-lowest: 0 0% 100%;
+    --surface-container-low: 222 47% 96%;
+    --surface-container: 222 27% 94%;
+    --surface-container-high: 222 19% 92%;
+    --surface-container-highest: 222 12% 89%;
+    --on-surface: 220 13% 11%;
+    --on-surface-variant: 218 11% 28%;
+    --primary-fixed: 213 100% 91%;
+    --primary-container: 209 100% 32%;
+    --on-primary-container: 213 100% 88%;
+    --secondary-container: 117 79% 78%;
+    --on-secondary-container: 127 56% 29%;
+    --tertiary-container: 33 100% 26%;
+    --on-tertiary-container: 33 100% 79%;
+    --error-container: 6 100% 92%;
+    --on-error-container: 358 100% 29%;
+    --outline-variant: 217 13% 79%;
 
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
@@ -17,8 +58,13 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 209 100% 25%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 127 60% 27%;
+    --secondary-foreground: 0 0% 100%;
+    --tertiary: 36 100% 19%;
+    --on-primary: 0 0% 100%;
+    --on-secondary: 0 0% 100%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
