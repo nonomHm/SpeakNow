@@ -1,24 +1,22 @@
-// Browser-only Arabic TTS using the Web Speech API.
-// Free, no API key required. Uses the device's built-in Arabic voice.
+// Browser-only English TTS using the Web Speech API.
+// Free, no API key required. Uses the device's built-in English voice.
 
-let arabicVoice: SpeechSynthesisVoice | null = null;
+let englishVoice: SpeechSynthesisVoice | null = null;
 
-function pickArabicVoice(): SpeechSynthesisVoice | null {
+function pickEnglishVoice(): SpeechSynthesisVoice | null {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
   const voices = window.speechSynthesis.getVoices();
-  // Prefer any Arabic voice (ar-SA, ar-EG, ar-XA, etc.)
-  return voices.find((v) => v.lang?.toLowerCase().startsWith("ar")) ?? null;
+  return voices.find((v) => v.lang?.toLowerCase().startsWith("en")) ?? null;
 }
 
 if (typeof window !== "undefined" && "speechSynthesis" in window) {
-  arabicVoice = pickArabicVoice();
-  // Voices often load asynchronously
+  englishVoice = pickEnglishVoice();
   window.speechSynthesis.onvoiceschanged = () => {
-    arabicVoice = pickArabicVoice();
+    englishVoice = pickEnglishVoice();
   };
 }
 
-export async function speakArabic(text: string) {
+export async function speakEnglish(text: string) {
   if (!text) return;
   if (typeof window === "undefined" || !("speechSynthesis" in window)) {
     console.warn("Speech synthesis not supported in this browser.");
@@ -28,12 +26,15 @@ export async function speakArabic(text: string) {
   window.speechSynthesis.cancel();
 
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "ar-SA";
-  utterance.rate = 0.9;
+  utterance.lang = "en-US";
+  utterance.rate = 1;
   utterance.pitch = 1;
 
-  const voice = arabicVoice ?? pickArabicVoice();
+  const voice = englishVoice ?? pickEnglishVoice();
   if (voice) utterance.voice = voice;
 
   window.speechSynthesis.speak(utterance);
 }
+
+// Backwards-compatible alias (was Arabic before)
+export const speakArabic = speakEnglish;

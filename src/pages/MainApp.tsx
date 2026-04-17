@@ -1,18 +1,23 @@
 import { useState } from "react";
-import { speakArabic } from "@/lib/speak";
-
-type Phrase = { text: string };
+import { speakEnglish } from "@/lib/speak";
 
 const MainApp = () => {
-  const [sentence, setSentence] = useState<string[]>(["أريد"]);
+  const [sentence, setSentence] = useState<string[]>(["I want"]);
 
+  // Add a word to the sentence and speak the running phrase
   const addWord = (word: string) => {
-    speakArabic(word);
-    setSentence((prev) => [...prev, word]);
+    const next = [...sentence, word];
+    setSentence(next);
+    speakEnglish(next.join(" "));
+  };
+
+  // Speak a standalone word/phrase without modifying the sentence
+  const speakOnly = (text: string) => {
+    speakEnglish(text);
   };
 
   const speakSentence = () => {
-    if (sentence.length) speakArabic(sentence.join(" "));
+    if (sentence.length) speakEnglish(sentence.join(" "));
   };
 
   const backspace = () => {
@@ -24,12 +29,13 @@ const MainApp = () => {
     icon: string,
     bg: string,
     fg: string,
+    onClick: () => void,
     iconColor?: string,
     fill = true,
   ) => (
     <button
       key={word}
-      onClick={() => addWord(word)}
+      onClick={onClick}
       className={`${bg} ${fg} p-6 rounded-[2rem] flex flex-col items-center justify-center gap-3 text-center transition-all duration-300 hover:brightness-105 active:scale-95`}
     >
       <span
@@ -37,12 +43,12 @@ const MainApp = () => {
       >
         {icon}
       </span>
-      <span className="text-2xl font-bold font-arabic">{word}</span>
+      <span className="text-2xl font-bold">{word}</span>
     </button>
   );
 
   return (
-    <div dir="rtl" lang="ar" className="bg-surface text-on-surface min-h-screen flex flex-col font-arabic">
+    <div lang="en" className="bg-surface text-on-surface min-h-screen flex flex-col">
       {/* Top bar */}
       <header className="bg-surface/80 backdrop-blur-3xl fixed top-0 w-full z-50">
         <div className="flex items-center justify-between px-6 py-4 w-full">
@@ -61,7 +67,7 @@ const MainApp = () => {
         <div className="mb-10 max-w-4xl mx-auto">
           <div className="bg-surface-container-highest rounded-3xl p-6 min-h-[120px] flex items-center justify-center relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-tr from-primary-container/10 to-transparent opacity-50" />
-            <div className="flex flex-wrap gap-3 items-center justify-center relative z-10 pl-20">
+            <div className="flex flex-wrap gap-3 items-center justify-center relative z-10 pr-20">
               {sentence.map((w, i) => (
                 <span
                   key={`${w}-${i}`}
@@ -76,7 +82,7 @@ const MainApp = () => {
             </div>
             <button
               onClick={speakSentence}
-              className="absolute left-6 top-1/2 -translate-y-1/2 bg-secondary text-on-secondary p-4 rounded-full shadow-lg active:scale-90 transition-transform"
+              className="absolute right-6 top-1/2 -translate-y-1/2 bg-secondary text-on-secondary p-4 rounded-full shadow-lg active:scale-90 transition-transform"
               aria-label="Speak sentence"
             >
               <span className="material-symbols-outlined icon-fill text-3xl">volume_up</span>
@@ -89,56 +95,58 @@ const MainApp = () => {
           {/* Primary intent */}
           <div className="col-span-2 row-span-1">
             <button
-              onClick={() => addWord("أريد")}
-              className="w-full h-full bg-primary-container text-on-primary-container p-8 rounded-[2rem] flex items-center gap-6 text-right transition-all duration-300 hover:brightness-110 active:scale-95 shadow-md"
+              onClick={() => speakOnly("I want")}
+              className="w-full h-full bg-primary-container text-on-primary-container p-8 rounded-[2rem] flex items-center gap-6 text-left transition-all duration-300 hover:brightness-110 active:scale-95 shadow-md"
             >
               <div className="bg-white/20 p-5 rounded-3xl">
                 <span className="material-symbols-outlined icon-fill text-6xl">front_hand</span>
               </div>
               <div>
-                <p className="text-on-primary-container/70 text-lg font-medium mb-1">فعل</p>
-                <h2 className="text-4xl font-extrabold">أريد</h2>
+                <p className="text-on-primary-container/70 text-lg font-medium mb-1">Verb</p>
+                <h2 className="text-4xl font-extrabold">I want</h2>
               </div>
             </button>
           </div>
 
-          {tile("نعم", "check_circle", "bg-secondary-container", "text-on-secondary-container", "text-secondary")}
-          {tile("لا", "cancel", "bg-error-container", "text-on-error-container", "text-destructive")}
+          {/* Yes / No: speak directly, do NOT append to sentence */}
+          {tile("Yes", "check_circle", "bg-secondary-container", "text-on-secondary-container", () => speakOnly("Yes"), "text-secondary")}
+          {tile("No", "cancel", "bg-error-container", "text-on-error-container", () => speakOnly("No"), "text-destructive")}
 
+          {/* Food / Water: append, then speaks "I want Food" / "I want Water" */}
           <button
-            onClick={() => addWord("جائع")}
+            onClick={() => addWord("Food")}
             className="bg-surface-container-low text-on-surface p-8 rounded-[2rem] flex flex-col items-start gap-4 transition-all duration-300 hover:bg-surface-container-high active:scale-95"
           >
             <div className="bg-tertiary-container/40 p-4 rounded-2xl">
               <span className="material-symbols-outlined text-5xl text-tertiary">restaurant</span>
             </div>
-            <span className="text-2xl font-bold">جائع</span>
+            <span className="text-2xl font-bold">Food</span>
           </button>
           <button
-            onClick={() => addWord("عطشان")}
+            onClick={() => addWord("Water")}
             className="bg-surface-container-low text-on-surface p-8 rounded-[2rem] flex flex-col items-start gap-4 transition-all duration-300 hover:bg-surface-container-high active:scale-95"
           >
             <div className="bg-primary-fixed p-4 rounded-2xl">
               <span className="material-symbols-outlined text-5xl text-primary">water_drop</span>
             </div>
-            <span className="text-2xl font-bold">عطشان</span>
+            <span className="text-2xl font-bold">Water</span>
           </button>
 
           <div className="col-span-2">
             <button
-              onClick={() => speakArabic("أحتاج مساعدة")}
+              onClick={() => speakOnly("I need help")}
               className="w-full bg-tertiary-container text-on-tertiary-container p-8 rounded-[2rem] flex items-center justify-between transition-all duration-300 hover:brightness-110 active:scale-95 border-4 border-tertiary/20"
             >
               <div className="flex items-center gap-6">
                 <span className="material-symbols-outlined text-6xl">sos</span>
-                <span className="text-4xl font-extrabold">مساعدة</span>
+                <span className="text-4xl font-extrabold">Help</span>
               </div>
               <span className="material-symbols-outlined text-4xl opacity-50">priority_high</span>
             </button>
           </div>
 
-          {tile("بخير", "mood", "bg-surface-container-low", "text-on-surface", "", false)}
-          {tile("ألم", "sentiment_very_dissatisfied", "bg-surface-container-low", "text-on-surface", "", false)}
+          {tile("Good", "mood", "bg-surface-container-low", "text-on-surface", () => speakOnly("I feel good"), "", false)}
+          {tile("Pain", "sentiment_very_dissatisfied", "bg-surface-container-low", "text-on-surface", () => speakOnly("I have pain"), "", false)}
         </div>
       </main>
 
@@ -166,7 +174,7 @@ const MainApp = () => {
       </nav>
 
       {/* FAB - backspace */}
-      <div className="fixed bottom-28 right-6 z-40">
+      <div className="fixed bottom-28 left-6 z-40">
         <button
           onClick={backspace}
           className="bg-surface-container-highest text-on-surface-variant p-5 rounded-2xl shadow-xl active:scale-90 transition"
