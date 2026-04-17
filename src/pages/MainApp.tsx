@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { speakEnglish } from "@/lib/speak";
 
 const MainApp = () => {
+  const navigate = useNavigate();
   const [sentence, setSentence] = useState<string[]>(["I want"]);
 
   // Add a word to the sentence and speak the running phrase
@@ -156,7 +158,10 @@ const MainApp = () => {
           <span className="material-symbols-outlined icon-fill">record_voice_over</span>
           <span className="font-headline font-medium text-sm">Speak</span>
         </button>
-        <button className="flex flex-col items-center justify-center text-on-surface-variant px-6 py-2 hover:bg-surface-container-highest rounded-xl transition">
+        <button
+          onClick={() => navigate("/categories")}
+          className="flex flex-col items-center justify-center text-on-surface-variant px-6 py-2 hover:bg-surface-container-highest rounded-xl transition"
+        >
           <span className="material-symbols-outlined">grid_view</span>
           <span className="font-headline font-medium text-sm">Categories</span>
         </button>
