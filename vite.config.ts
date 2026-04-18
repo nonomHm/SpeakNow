@@ -5,6 +5,8 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  // GitHub Pages serves the app from /SpeakNow/. Use root in dev and on Lovable preview.
+  base: mode === "production" ? "/SpeakNow/" : "/",
   server: {
     host: "::",
     port: 8080,
