@@ -26,9 +26,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
 
-      - run: npm ci
+      # Use npm ci when a lockfile exists, otherwise fall back to npm install
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
       - run: npm run build
 
       # SPA fallback: GitHub Pages serves 404.html for unknown paths.
